@@ -151,7 +151,7 @@ export async function signInWithPassword(formData: FormData) {
     );
   } else if (data.user) {
     cookieStore.set('preferredSignInView', 'password_signin', { path: '/' });
-    redirectPath = getStatusRedirect('/', 'Success!', 'You are now signed in.');
+    redirectPath = getStatusRedirect('/playground', 'Success!', 'You are now signed in.');
   } else {
     redirectPath = getErrorRedirect(
       '/signin/password_signin',
@@ -206,6 +206,16 @@ export async function signUp(formData: FormData) {
       'There is already an account associated with this email address. Try resetting your password.'
     );
   } else if (data.user) {
+    // Assign default 'free_user' role
+    const { error: roleError } = await supabase
+      .from('user_roles')
+      .insert({ user_id: data.user.id, role_id: 3 }); // Assuming 3 is the ID for 'free_user'
+
+    if (roleError) {
+      console.error('Error assigning role:', roleError);
+      // Handle role assignment error
+    }
+
     redirectPath = getStatusRedirect(
       '/',
       'Success!',

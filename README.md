@@ -1,6 +1,6 @@
-# Next.js Subscription Payments Starter with shadcn/ui
+# Next.js Subscription Payments Starter with shadcn/ui and Role-Based Access Control
 
-The all-in-one starter kit for high-performance SaaS applications, now featuring shadcn/ui for beautiful and customizable UI components.
+The all-in-one starter kit for high-performance SaaS applications, now featuring shadcn/ui for beautiful and customizable UI components, and role-based access control.
 
 ## Features
 
@@ -9,6 +9,7 @@ The all-in-one starter kit for high-performance SaaS applications, now featuring
 - Integration with [Stripe Checkout](https://stripe.com/docs/payments/checkout) and the [Stripe customer portal](https://stripe.com/docs/billing/subscriptions/customer-portal)
 - Automatic syncing of pricing plans and subscription statuses via [Stripe webhooks](https://stripe.com/docs/webhooks)
 - Beautiful UI components powered by [shadcn/ui](https://ui.shadcn.com/)
+- Role-based access control (RBAC) for managing user permissions
 
 ## Demo
 
@@ -30,6 +31,25 @@ The all-in-one starter kit for high-performance SaaS applications, now featuring
 - [shadcn/ui](https://ui.shadcn.com/) – Beautifully designed components that you can copy and paste into your apps
 - [TypeScript](https://www.typescriptlang.org/) – Static type checker for end-to-end typesafety
 - [Vercel](https://vercel.com/) – Easily preview & deploy changes with git
+
+## Project Structure
+
+- `/app` - Next.js app router pages
+- `/components` - React components, including shadcn/ui components
+- `/hooks` - Custom React hooks
+- `/lib` - Utility functions and custom type definitions
+- `/styles` - Global styles and Tailwind CSS configuration
+- `/utils` - Helper functions and utility modules
+
+## Role-Based Access Control
+
+This project implements a simple role-based access control system:
+
+- Public routes: Accessible to all users
+- `/playground`: Accessible to all authenticated users
+- `/admin`: Accessible only to users with the 'admin' role
+
+Roles are managed in the Supabase database and assigned to users upon registration.
 
 ## Getting Started
 

@@ -1,36 +1,19 @@
-import React, { InputHTMLAttributes, ChangeEvent } from 'react';
-import cn from 'classnames';
+import React, { InputHTMLAttributes } from 'react';
 
-import s from './Input.module.css';
-
-interface Props extends Omit<InputHTMLAttributes<any>, 'onChange'> {
+interface Props extends InputHTMLAttributes<HTMLInputElement> {
   className?: string;
-  onChange: (value: string) => void;
+  onChange?: (...args: unknown[]) => void;
 }
+
 const Input = (props: Props) => {
-  const { className, children, onChange, ...rest } = props;
-
-  const rootClassName = cn(s.root, {}, className);
-
-  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (onChange) {
-      onChange(e.target.value);
-    }
-    return null;
-  };
+  const { className, onChange, ...rest } = props;
 
   return (
-    <label>
-      <input
-        className={rootClassName}
-        onChange={handleOnChange}
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck="false"
-        {...rest}
-      />
-    </label>
+    <input
+      className={className}
+      onChange={onChange && ((e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value))}
+      {...rest}
+    />
   );
 };
 

@@ -6,7 +6,7 @@ import {
   getUser
 } from '@/utils/supabase/queries';
 
-export default async function PricingPage() {
+export default async function Home() {
   const supabase = createClient();
   const [user, products, subscription] = await Promise.all([
     getUser(supabase),
@@ -15,10 +15,15 @@ export default async function PricingPage() {
   ]);
 
   return (
-    <Pricing
-      user={user}
-      products={products ?? []}
-      subscription={subscription}
-    />
+    <div>
+      <h1>Welcome to Our App</h1>
+      <p>This is a public page accessible to all users.</p>
+      
+      <Pricing
+        user={user}
+        products={products ?? []}
+        subscription={subscription}
+      />
+    </div>
   );
 }
