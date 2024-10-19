@@ -2,11 +2,23 @@
 
 import cn from 'classnames';
 import React, { forwardRef, useRef, ButtonHTMLAttributes } from 'react';
-import { mergeRefs } from 'react-merge-refs';
 
 import LoadingDots from '@/components/ui/LoadingDots';
 
 import styles from './Button.module.css';
+
+// Custom mergeRefs function
+const mergeRefs = (...refs: any[]) => {
+  return (value: any) => {
+    refs.forEach((ref) => {
+      if (typeof ref === 'function') {
+        ref(value);
+      } else if (ref != null) {
+        ref.current = value;
+      }
+    });
+  };
+};
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'slim' | 'flat';
@@ -43,7 +55,7 @@ const Button = forwardRef<HTMLButtonElement, Props>((props, buttonRef) => {
     <Component
       aria-pressed={active}
       data-variant={variant}
-      ref={mergeRefs([ref, buttonRef])}
+      ref={mergeRefs(ref, buttonRef)}
       className={rootClassName}
       disabled={disabled}
       style={{
