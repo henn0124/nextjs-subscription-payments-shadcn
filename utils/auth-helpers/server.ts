@@ -164,72 +164,43 @@ export async function signInWithPassword(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
-  const callbackURL = getURL('/auth/callback');
-
   const email = String(formData.get('email')).trim();
   const password = String(formData.get('password')).trim();
-  let redirectPath: string;
-
-  if (!isValidEmail(email)) {
-    redirectPath = getErrorRedirect(
-      '/signin/signup',
-      'Invalid email address.',
-      'Please try again.'
-    );
-  }
-
   const supabase = createClient();
-  const { error, data } = await supabase.auth.signUp({
+
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: callbackURL
-    }
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+    },
   });
 
   if (error) {
-    redirectPath = getErrorRedirect(
-      '/signin/signup',
+    return getErrorRedirect(
+      '/signin',
       'Sign up failed.',
       error.message
     );
-  } else if (data.session) {
-    redirectPath = getStatusRedirect('/', 'Success!', 'You are now signed in.');
-  } else if (
-    data.user &&
-    data.user.identities &&
-    data.user.identities.length == 0
-  ) {
-    redirectPath = getErrorRedirect(
-      '/signin/signup',
-      'Sign up failed.',
-      'There is already an account associated with this email address. Try resetting your password.'
-    );
-  } else if (data.user) {
-    // Assign default 'free_user' role
+  }
+
+  // Assign default 'free_user' role
+  if (data.user) {
     const { error: roleError } = await supabase
       .from('user_roles')
       .insert({ user_id: data.user.id, role_id: 3 }); // Assuming 3 is the ID for 'free_user'
 
     if (roleError) {
       console.error('Error assigning role:', roleError);
-      // Handle role assignment error
+      // You might want to handle this error more gracefully
     }
-
-    redirectPath = getStatusRedirect(
-      '/',
-      'Success!',
-      'Please check your email for a confirmation link. You may now close this tab.'
-    );
-  } else {
-    redirectPath = getErrorRedirect(
-      '/signin/signup',
-      'Hmm... Something went wrong.',
-      'You could not be signed up.'
-    );
   }
 
-  return redirectPath;
+  return getStatusRedirect(
+    '/signin',
+    'Success!',
+    'Please check your email for a confirmation link. You may now sign in.'
+  );
 }
 
 export async function updatePassword(formData: FormData) {

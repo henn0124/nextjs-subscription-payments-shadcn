@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
@@ -9,11 +11,11 @@ export function useUserRole() {
   const getUserRole = useCallback(async () => {
     setLoading(true);
     try {
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      if (userError) throw userError;
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
       
-      if (user) {
-        const { data, error } = await supabase.rpc('get_user_role', { user_uuid: user.id });
+      if (session?.user) {
+        const { data, error } = await supabase.rpc('get_user_role', { user_uuid: session.user.id });
         if (error) throw error;
         setRole(data);
       } else {

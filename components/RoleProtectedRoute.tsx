@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useRouter } from 'next/navigation';
@@ -15,7 +17,12 @@ export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRout
     return <div>Loading...</div>;
   }
 
-  if (role === null || !allowedRoles.includes(role)) {
+  if (role === null) {
+    router.push('/signin');
+    return null;
+  }
+
+  if (!allowedRoles.includes(role)) {
     router.push('/unauthorized');
     return null;
   }

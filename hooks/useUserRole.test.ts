@@ -1,14 +1,10 @@
 import { renderHook, act } from '@testing-library/react'
 import { useUserRole } from './useUserRole'
-import { createClient } from '@/utils/supabase/client'
+import { createClient } from '@/utils/supabase/server'
 
-jest.mock('@/utils/supabase/client')
+jest.mock('@/utils/supabase/server')
 
 describe('useUserRole', () => {
-  beforeEach(() => {
-    jest.clearAllMocks()
-  })
-
   it('returns null when there is no user', async () => {
     const mockGetUser = jest.fn().mockResolvedValue({ data: { user: null }, error: null })
     const mockRpc = jest.fn()
@@ -17,10 +13,9 @@ describe('useUserRole', () => {
       rpc: mockRpc
     })
 
-    let result: { current: { role: string | null, loading: boolean } }
+    const { result } = renderHook(() => useUserRole())
+    
     await act(async () => {
-      const { result: hookResult } = renderHook(() => useUserRole())
-      result = hookResult
       await new Promise(resolve => setTimeout(resolve, 0))
     })
 
@@ -38,10 +33,9 @@ describe('useUserRole', () => {
       rpc: mockRpc
     })
 
-    let result: { current: { role: string | null, loading: boolean } }
+    const { result } = renderHook(() => useUserRole())
+    
     await act(async () => {
-      const { result: hookResult } = renderHook(() => useUserRole())
-      result = hookResult
       await new Promise(resolve => setTimeout(resolve, 0))
     })
 

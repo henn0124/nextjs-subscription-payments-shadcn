@@ -1,5 +1,12 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { cache } from 'react';
+import { createClient } from '@/utils/supabase/server';
+import { Database } from '@/types_db';
+
+type Product = Database['public']['Tables']['products']['Row'];
+type Price = Database['public']['Tables']['prices']['Row'];
+type Subscription = Database['public']['Tables']['subscriptions']['Row'];
+type ProductWithPrices = Product & { prices: Price[] };
 
 export const getUser = cache(async (supabase: SupabaseClient) => {
   const {
@@ -9,26 +16,29 @@ export const getUser = cache(async (supabase: SupabaseClient) => {
 });
 
 export const getSubscription = cache(async (supabase: SupabaseClient) => {
-  const { data: subscription, error } = await supabase
+  const { data: subscription } = await supabase
     .from('subscriptions')
     .select('*, prices(*, products(*))')
     .in('status', ['trialing', 'active'])
     .maybeSingle();
 
-  return subscription;
+  return subscription as (Subscription & {
+    prices: Price & {
+      products: Product;
+    };
+  }) | null;
 });
 
-export const getProducts = cache(async (supabase: SupabaseClient) => {
-  const { data: products, error } = await supabase
+export async function getProducts(supabase: ReturnType<typeof createClient>) {
+  const { data: products } = await supabase
     .from('products')
     .select('*, prices(*)')
     .eq('active', true)
-    .eq('prices.active', true)
     .order('metadata->index')
-    .order('unit_amount', { referencedTable: 'prices' });
+    .order('unit_amount', { foreignTable: 'prices' });
 
-  return products;
-});
+  return (products as ProductWithPrices[]) ?? [];
+}
 
 export const getUserDetails = cache(async (supabase: SupabaseClient) => {
   const { data: userDetails } = await supabase

@@ -1,10 +1,11 @@
 import { Metadata } from 'next';
-import Footer from '@/components/ui/Footer';
 import Navbar from '@/components/ui/Navbar';
+import Footer from '@/components/ui/Footer';
 import { Toaster } from '@/components/ui/Toasts/toaster';
-import { PropsWithChildren, Suspense } from 'react';
 import { getURL } from '@/utils/helpers';
 import '@/styles/main.css';
+import { createClient } from '@/utils/supabase/server'
+import SupabaseProvider from './supabase-provider'
 
 const title = 'Next.js Subscription Starter';
 const description = 'Brought to you by Vercel, Stripe, and Supabase.';
@@ -19,22 +20,27 @@ export const metadata: Metadata = {
   }
 };
 
-export default async function RootLayout({ children }: PropsWithChildren) {
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const supabase = createClient()
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
   return (
     <html lang="en">
-      <body className="bg-black">
-        <Navbar />
-        <main
-          id="skip"
-          className="min-h-[calc(100dvh-4rem)] md:min-h[calc(100dvh-5rem)]"
-        >
-          {children}
-        </main>
-        <Footer />
-        <Suspense>
+      <body>
+        <SupabaseProvider session={session}>
+          <Navbar />
+          <main>{children}</main>
+          <Footer />
           <Toaster />
-        </Suspense>
+        </SupabaseProvider>
       </body>
     </html>
-  );
+  )
 }
