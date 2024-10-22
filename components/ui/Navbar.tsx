@@ -13,16 +13,16 @@ export default function Navbar() {
           Your App Name
         </Link>
         <div className="space-x-4">
+          <Link href="/playground">Playground</Link>
           {loading ? (
             <span>Loading...</span>
           ) : (
             <>
-              {role && <Link href="/playground">Playground</Link>}
               {role === 'admin' && <Link href="/admin-dashboard">Admin Dashboard</Link>}
               {!role && (
                 <>
-                  <Link href="/signin?mode=signup" className="text-white hover:text-gray-300">Sign Up</Link>
-                  <Link href="/signin" className="text-white hover:text-gray-300">Sign In</Link>
+                  <Link href="/signin">Sign In</Link>
+                  <Link href="/signin?mode=signup">Sign Up</Link>
                 </>
               )}
               {role && <Link href="/signout">Sign Out</Link>}
