@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useRouter } from 'next/navigation';
 
@@ -9,23 +9,24 @@ interface RoleProtectedRouteProps {
   allowedRoles: string[];
 }
 
-export function RoleProtectedRoute({ children, allowedRoles }: RoleProtectedRouteProps) {
+export const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ children, allowedRoles }) => {
   const { role, loading } = useUserRole();
   const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  useEffect(() => {
+    if (!loading) {
+      if (!role || !allowedRoles.includes(role)) {
+        router.push('/unauthorized');
+      } else {
+        setIsAuthorized(true);
+      }
+    }
+  }, [role, loading, allowedRoles, router]);
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  if (role === null) {
-    router.push('/signin');
-    return null;
-  }
-
-  if (!allowedRoles.includes(role)) {
-    router.push('/unauthorized');
-    return null;
-  }
-
-  return <>{children}</>;
-}
+  return isAuthorized ? <>{children}</> : null;
+};

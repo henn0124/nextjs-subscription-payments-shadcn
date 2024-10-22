@@ -6,6 +6,7 @@ import { getURL } from '@/utils/helpers';
 import '@/styles/main.css';
 import { createClient } from '@/utils/supabase/server'
 import SupabaseProvider from './supabase-provider'
+import { cookies } from 'next/headers';
 
 const title = 'Next.js Subscription Starter';
 const description = 'Brought to you by Vercel, Stripe, and Supabase.';
@@ -25,7 +26,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode
 }) {
-  const supabase = createClient()
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
 
   const {
     data: { session },

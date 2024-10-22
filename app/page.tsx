@@ -8,6 +8,7 @@ import {
 } from '@/utils/supabase/queries';
 import { User } from '@supabase/supabase-js';
 import { Database } from '@/types_db';
+import { cookies } from 'next/headers';
 
 type Product = Database['public']['Tables']['products']['Row'];
 type Price = Database['public']['Tables']['prices']['Row'];
@@ -25,7 +26,8 @@ type SubscriptionWithProduct = Subscription & {
 };
 
 export default async function Home() {
-  const supabase = createClient();
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
   
   let user: User | null = null;
   let products: ProductWithPrices[] = [];

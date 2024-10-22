@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import { cache } from 'react';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from './server';
 import { Database } from '@/types_db';
 
 type Product = Database['public']['Tables']['products']['Row'];

@@ -1,37 +1,31 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 
 export function useUserRole() {
   const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
-
-  const getUserRole = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) throw sessionError;
-      
-      if (session?.user) {
-        const { data, error } = await supabase.rpc('get_user_role', { user_uuid: session.user.id });
-        if (error) throw error;
-        setRole(data);
-      } else {
-        setRole(null);
-      }
-    } catch (error) {
-      console.error('Error in getUserRole:', error);
-      setRole(null);
-    } finally {
-      setLoading(false);
-    }
-  }, [supabase]);
 
   useEffect(() => {
-    getUserRole();
-  }, [getUserRole]);
+    const fetchUserRole = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data, error } = await supabase.rpc('get_user_role', { user_uuid: user.id });
+        if (error) {
+          console.error('Error fetching user role:', error);
+        } else {
+          setRole(data);
+        }
+      }
+      
+      setLoading(false);
+    };
+
+    fetchUserRole();
+  }, []);
 
   return { role, loading };
 }

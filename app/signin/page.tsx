@@ -6,7 +6,6 @@ import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
 import GoogleSignInButton from '@/components/GoogleSignInButton';
 import GoogleOneTap from '@/components/GoogleOneTap';
-import Link from 'next/link';
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
