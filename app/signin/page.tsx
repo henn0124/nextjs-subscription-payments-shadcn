@@ -4,16 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
 import { Button } from '@/components/ui/button';
-import GoogleSignInButton from '@/components/GoogleSignInButton';
-import GoogleOneTap from '@/components/GoogleOneTap';
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [googleError, setGoogleError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -23,9 +19,11 @@ export default function AuthPage() {
     setIsSignUp(mode === 'signup');
   }, [searchParams]);
 
-  const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+
+    console.log('Attempting to sign in/up with:', { email, password });
 
     if (isSignUp) {
       const { error } = await supabase.auth.signUp({
@@ -37,58 +35,29 @@ export default function AuthPage() {
       });
 
       if (error) {
+        console.error('Sign-up error:', error);
         setError(error.message);
       } else {
-        setMessage('Check your email to confirm your account');
+        console.log('Sign-up successful, redirecting to confirmation page');
+        router.push('/signin?message=Check your email to confirm your account');
       }
     } else {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Sign-in error:', error);
         setError(error.message);
       } else {
-        router.push('/playground');
+        console.log('Sign-in successful, user data:', data.user);
+        console.log('Sign-in successful, session:', data.session);
+        console.log('Redirecting to /my-app in 2 seconds');
+        setTimeout(() => {
+          router.push('/my-app');
+        }, 2000);
       }
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      setGoogleError(null);
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      });
-
-      if (error) {
-        console.error('Google Sign-In Error:', error);
-        setGoogleError(error.message);
-      }
-    } catch (err) {
-      console.error('Unexpected error during Google Sign-In:', err);
-      setGoogleError('An unexpected error occurred. Please try again.');
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    setError(null);
-    setMessage(null);
-    if (!email) {
-      setError('Please enter your email address');
-      return;
-    }
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/callback?next=/update-password`,
-    });
-    if (error) {
-      setError(error.message);
-    } else {
-      setMessage('Check your email for the password reset link');
     }
   };
 
@@ -97,8 +66,7 @@ export default function AuthPage() {
       <div className="p-8 bg-white rounded shadow-md w-96">
         <h1 className="text-2xl font-bold mb-6">{isSignUp ? 'Sign Up' : 'Sign In'}</h1>
         {error && <p className="text-red-500 mb-4">{error}</p>}
-        {message && <p className="text-green-500 mb-4">{message}</p>}
-        <form onSubmit={handleAuth} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
@@ -129,18 +97,6 @@ export default function AuthPage() {
             {isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
         </form>
-        {!isSignUp && (
-          <button
-            onClick={handleForgotPassword}
-            className="text-sm text-blue-600 hover:underline mt-2 block"
-          >
-            Forgot Password?
-          </button>
-        )}
-        <div className="mt-4">
-          <GoogleSignInButton onClick={handleGoogleSignIn} />
-        </div>
-        {googleError && <p className="text-red-500 mt-2">{googleError}</p>}
         <p className="mt-4 text-center">
           <button
             className="text-blue-500 hover:underline"
@@ -150,7 +106,6 @@ export default function AuthPage() {
           </button>
         </p>
       </div>
-      <GoogleOneTap />
     </div>
   );
 }

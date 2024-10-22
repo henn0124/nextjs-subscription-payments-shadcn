@@ -26,8 +26,7 @@ type SubscriptionWithProduct = Subscription & {
 };
 
 export default async function Home() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   
   let user: User | null = null;
   let products: ProductWithPrices[] = [];

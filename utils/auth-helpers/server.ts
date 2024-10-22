@@ -18,16 +18,14 @@ export async function redirectToPath(path: string) {
 
 // Function to sign out the user
 export async function SignOut() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const { error } = await supabase.auth.signOut();
   return error;
 }
 
 // Function to sign in with email (magic link)
 export async function signInWithEmail(formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const callbackURL = getURL('/auth/callback');
 
   const email = String(formData.get('email')).trim();
@@ -53,7 +51,8 @@ export async function signInWithEmail(formData: FormData) {
   if (error) {
     return redirect(`/signin/email_signin?error=${encodeURIComponent(error.message)}`);
   } else if (data) {
-    cookieStore.set('preferredSignInView', 'email_signin', { path: '/' });
+    // Instead of using cookieStore, we'll use the cookies() function
+    cookies().set('preferredSignInView', 'email_signin', { path: '/' });
     return redirect('/signin/email_signin?message=Success! Please check your email for a magic link.');
   } else {
     return redirect('/signin/email_signin?error=Something went wrong. You could not be signed in.');
@@ -62,8 +61,7 @@ export async function signInWithEmail(formData: FormData) {
 
 // Function to request a password reset
 export async function requestPasswordUpdate(formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const email = String(formData.get('email')).trim();
   const callbackURL = getURL('/auth/callback');
 
@@ -80,8 +78,7 @@ export async function requestPasswordUpdate(formData: FormData) {
 
 // Function to sign in with email and password
 export async function signInWithPassword(formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const email = String(formData.get('email')).trim();
   const password = String(formData.get('password')).trim();
 
@@ -99,8 +96,7 @@ export async function signInWithPassword(formData: FormData) {
 
 // Function to sign up a new user
 export async function signUp(formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const email = String(formData.get('email')).trim();
   const password = String(formData.get('password')).trim();
   const callbackURL = getURL('/auth/callback');
@@ -122,8 +118,7 @@ export async function signUp(formData: FormData) {
 
 // Function to update user's password
 export async function updatePassword(formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const password = String(formData.get('password')).trim();
 
   const { data, error } = await supabase.auth.updateUser({
@@ -139,8 +134,7 @@ export async function updatePassword(formData: FormData) {
 
 // Function to update user's email
 export async function updateEmail(formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const email = String(formData.get('email')).trim();
 
   const callbackUrl = getURL('/account');
@@ -159,8 +153,7 @@ export async function updateEmail(formData: FormData) {
 
 // Function to update user's name
 export async function updateName(formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+  const supabase = createClient();
   const fullName = String(formData.get('fullName')).trim();
 
   const { data, error } = await supabase.auth.updateUser({

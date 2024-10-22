@@ -18,6 +18,7 @@ export default function Navbar() {
             <span>Loading...</span>
           ) : (
             <>
+              {role && <Link href="/my-app">My App</Link>}
               {role === 'admin' && <Link href="/admin-dashboard">Admin Dashboard</Link>}
               {!role && (
                 <>
